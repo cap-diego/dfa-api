@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"time"
 	"os"
@@ -50,7 +49,8 @@ func main() {
 	fmt.Print("Inicializando server\n")
 	http.HandleFunc("/minimize", minimizeAutomata)
 	go func() {
-		err := http.ListenAndServe(":8080", nil)
+		// err := http.ListenAndServe(":8080", nil)
+		err := http.ListenAndServeTLS(":443", "certificate.crt", "private.key", nil)
 		if err != nil {
 			panic(err)
 		}
@@ -64,7 +64,6 @@ func main() {
 	fmt.Print("Terminate: ", sig)
     context.WithTimeout(context.Background(), 10 * time.Second)
 }
-
 
 func hasMinimumFields(M *dfa.DFA) bool {
 	if M.States.IsEmpty() {
