@@ -12,10 +12,19 @@ import (
 	"github.com/cap-diego/dfa-minimization-algorithm"
 )
 
-
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
 func minimizeAutomata(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+	w.Header().Set("Content-type", "application/json")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
 	var M dfa.DFA
 	if r.Method != http.MethodPost {
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusAccepted)
+			return
+		}
 		http.Error(w, "error, method post expected", 400)
 		return
 	}
@@ -28,7 +37,12 @@ func minimizeAutomata(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("error while decoding dfa, %s\n", err.Error()), 404)
 		return
 	}
+	if !hasMinimumFields(&M) {
+		http.Error(w, "error, faltan campos obligatorios", 404)
+		return
+	}
 	Min := dfa.HopcroftDFAMin(M)
+	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(Min)
 }
 
@@ -49,4 +63,18 @@ func main() {
 	sig := <- sigChan // Block 
 	fmt.Print("Terminate: ", sig)
     context.WithTimeout(context.Background(), 10 * time.Second)
+}
+
+
+func hasMinimumFields(M *dfa.DFA) bool {
+	if M.States.IsEmpty() {
+		return false
+	}
+	if len(M.Alphabet) == 0{
+		return false
+	}
+	if M.FinalStates.IsEmpty() {
+		return false
+	}
+	return true
 }
