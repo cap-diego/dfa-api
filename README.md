@@ -18,3 +18,5 @@
               "1":{"0":1,"1":0}}
       }
     ```
+     - Ejemplo para el autómata:
+       - ![alt text](https://github.com/cap-diego/dfa-api/blob/main/afd-ex-readme.png?raw=true)
